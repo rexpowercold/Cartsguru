@@ -1,0 +1,182 @@
+
+
+<div id="cartsguru-welcome" class="<?php echo ($this->getAuthkey() ? 'view-success' : ''); ?>">
+    <div class="header">
+        <div class="inner-section">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <img class="logo" src="<?php echo $this->getViewFileUrl('Cartsguru_Cartsguru::css/images/logo_black.png'); ?>" />
+                    </div>
+                </div>
+                <div class="success-message text-center">
+                    <img src="<?php echo $this->getViewFileUrl('Cartsguru_Cartsguru::css/images/success.png'); ?>" />
+                    <h1>You successfuly installed Carts Guru's plugin</h1>
+                </div>
+                <div class="no-selected-store-message text-center">
+                    <h1>The multistore option is enabled. If you want configure the module, please select store.</h1>
+                </div>
+
+                <div class="row header-text">
+                    <div class="col-lg-12">
+                        <h1>The best way to recover your abandoned carts</h1>
+                        <h2>Carts Guru is the all-in-one solution to recover your abandoned carts and turn them into sales. Use Emails, SMS, Automatic Calls, Facebook &amp; Instagram to convert more than 20% of your lost customers into sales. </h2>
+                    </div>
+                </div>
+                <form action="<?php echo $this->getUrl('cartsguru/admin/index'); ?>" method="post" class="have-account-form form">
+                  <?php echo $this->getBlockHtml('formkey')?>
+                    <div class="form-title">Plug Carts Guru into your Magento 2 store</div>
+                    <button type="button" class="close-form-btn" onclick="cg_switchView()">
+                        X
+                    </button>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input class="input full-width" value="<?php echo ($this->getSiteId() ? $this->getSiteId() : ''); ?>" name="siteid" placeholder="Site ID" required />
+                        </div>
+                        <div class="col-md-4">
+                            <input class="input full-width" value="<?php echo ($this->getAuthkey() ? $this->getAuthkey() : ''); ?>" name="authkey" placeholder="Auth Key" required />
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn-full full-width" name="submitConnect">Connect it now</button>
+                        </div>
+                    </div>
+                    <div class="sub-text row">
+                        <div class="col-sm-12">
+                            <span>Don t know this information?</span>
+                            <a class="link" target="_blank" href="https://my.carts.guru">Access it here</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="triangle-slice"></div>
+    <div class="footer">
+        <div class="inner-section">
+            <div class="container-fluid">
+
+                 <div class="success-buttons">
+                    <button class="btn-not-full" onclick="cg_switchView('view-have-account', 'view-success')">Edit my settings</button>
+                    <button class="btn-full" onclick="location.href='<?php echo $this->getPortalURL(); ?>'">Access to Carts Guru platform</button>
+                </div>
+
+                <div class="try-buttons">
+                    <div class="button-title">Enjoy all features during your 14-Days / $5,000 Revenue Free Trial</div>
+                    <button class="btn-not-full" onclick="cg_switchView('view-have-account')">I have an account</button>
+                    <a class="btn-full" href="<?php echo $this->getUrl('cartsguru/admin/register'); ?>">Try it now for free</a>
+                </div>
+
+                <div class="row">
+                    <div class="list">
+                        <div class="col-lg-6">
+                            <div class="list-item">
+                                <img src="<?php echo $this->getViewFileUrl('Cartsguru_Cartsguru::css/images/checkmark.png'); ?>" />
+                                <span>Performance-based pricing.</span>
+                                (<a class="link" target="_blank" href="https://carts.guru?platform=magento2">see details here</a>)
+                            </div>
+                            <div cшlass="list-item">
+                                <img src="<?php echo $this->getViewFileUrl('Cartsguru_Cartsguru::css/images/checkmark.png'); ?>" />
+                                <span>Easy-to-use, incredibly intuitive solution</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="list-item">
+                                <img src="<?php echo $this->getViewFileUrl('Cartsguru_Cartsguru::css/images/checkmark.png'); ?>" />
+                                <span>Run unlimited campaigns, with unlimited actions</span>
+                            </div>
+                            <div class="list-item">
+                                <img src="<?php echo $this->getViewFileUrl('Cartsguru_Cartsguru::css/images/checkmark.png'); ?>" />
+                                <span>Risk Free. No credit cards required. Cancel any time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 text-center text-bold features-title">Features</div>
+                </div>
+                <div class="row">
+                    <div clas="col-sm-12">
+                        <div class="channel-block-list text-center">
+                            <article class="channel-block">
+                                <div class="channel-title">Email retargeting</div>
+                                <div class="channel-picture email"></div>
+                                <div class="channel-link">Learn more</div>
+                                <div class="channel-info">
+                                    <div class="channel-block-info-triangle"></div>
+                                    <p class="no-margin">Customize campaigns with your brand. Launch them at the perfect moment with automation.</p>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">52%</div>
+                                        <div class="channel-ef-t">Open rate</div>
+                                    </div>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">14%</div>
+                                        <div class="channel-ef-t">Click rate</div>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="channel-block">
+                                <div class="channel-title">SMS retargeting</div>
+                                <div class="channel-picture sms"></div>
+                                <div class="channel-link">Learn more</div>
+                                <div class="channel-info">
+                                    <div class="channel-block-info-triangle"></div>
+                                    <p class="no-margin">With an outstanding 97% open rate. Add SMS Marketing to your mix.</p>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">20%</div>
+                                        <div class="channel-ef-t">Conversion rate</div>
+                                    </div>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">1%</div>
+                                        <div class="channel-ef-t">Unsubscription</div>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="channel-block">
+                                <div class="channel-title">Automatic calls</div>
+                                <div class="channel-picture call"></div>
+                                <div class="channel-link">Learn more</div>
+                                <div class="channel-info">
+                                    <div class="channel-block-info-triangle"></div>
+                                    <p class="no-margin">Save this for your most important products and customers. Contact your customer automatically.</p>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">45%</div>
+                                        <div class="channel-ef-t">Conversion rate</div>
+                                    </div>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">+20%</div>
+                                        <div class="channel-ef-t">Average cart value</div>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="channel-block">
+                                <div class="channel-title">Facebook &amp; Instagram</div>
+                                <div class="channel-picture fb"></div>
+                                <div class="channel-link">Learn more</div>
+                                <div class="channel-info">
+                                    <div class="channel-block-info-triangle"></div>
+                                    <p class="no-margin">Reach your buyers where they are! Use dynamic retargeting to recover buyers with CPC ads.</p>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">+34%</div>
+                                        <div class="channel-ef-t">Click through rate</div>
+                                    </div>
+                                    <div class="col-xs-6 channel-ef-el">
+                                        <div class="channel-ef">+70%</div>
+                                        <div class="channel-ef-t">Prone to convert</div>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <a class="text-bold features-title" target="_blank" href="https://carts.guru?platform=magento2">
+                            Access Carts Guru website
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

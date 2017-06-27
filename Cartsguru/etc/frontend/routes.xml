@@ -1,0 +1,14 @@
+<!--
+/**
+ * Copyright © 2017 Carts Guru, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="cartsguru" frontName="cartsguru">
+            <module name="Cartsguru_Cartsguru" />
+        </route>
+    </router>
+</config>

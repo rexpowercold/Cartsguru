@@ -1,0 +1,48 @@
+<div id="cartsguru-welcome" class="">
+    <div class="header">
+        <div class="inner-section">
+            <div class="container-fluid">
+              <form class="form form-big-padding" method="post">
+                <?php echo $this->getBlockHtml('formkey')?>
+                  <div class="form-title text-center">You are one step away from your free-trial</div>
+                  <a class="close-form-btn back-btn" href="<?php echo $this->getUrl('cartsguru/admin/index'); ?>">< Back</a>
+                  <div class="row">
+                      <div class="col-md-6">
+                          <input class="input full-width" name="firstname" placeholder="First name" required />
+                      </div>
+                      <div class="col-md-6">
+                          <input class="input full-width" name="lastname" placeholder="Last name" required />
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-6">
+                          <input class="input full-width" name="phonenumber" placeholder="Phone number" required />
+                      </div>
+                      <div class="col-md-6">
+                          <input class="input full-width" type="email" name="email" placeholder="Email adress" required  />
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="input full-width">
+                             <?php echo $this->getCountries(); ?>
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <input class="input full-width" type="password" name="password" placeholder="Password" required />
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-12">
+                          <input class="input full-width"  name="website" placeholder="Website Url" required  />
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-12 text-center">
+                          <button class="btn-full"  name="submitSubscribe">Connect it now</button>
+                      </div>
+                  </div>
+              </form>
+          </div>
+        </div>
+      </div>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2017 Carts Guru Ltd. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config>
+    <type name="Magento\Checkout\Model\GuestShippingInformationManagement">
+        <plugin name="cartsguruInterceptorPlugin" type="Cartsguru\Cartsguru\Plugin\CartguruPlugin" sortOrder="1" />
+    </type>
+</config>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2017 Carts Guru Ltd. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+	   <add id="Cartsguru_Cartsguru::cartsguru"
+	   		title="Carts Guru"
+	   		module="Cartsguru_Cartsguru"
+	   		sortOrder="51"
+	   		resource="Cartsguru_Cartsguru::cartsguru"/>
+    <add id="Cartsguru_Cartsguru::admin"
+         title="CartsGuru"
+         module="Cartsguru_Cartsguru"
+         sortOrder="10"
+         action="cartsguru/admin"
+         resource="Cartsguru_Cartsguru::post"
+         parent="Cartsguru_Cartsguru::cartsguru"/>
+    </menu>
+</config>
