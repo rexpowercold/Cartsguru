@@ -62,6 +62,8 @@ class Index extends \Magento\Framework\App\Action\Action
         if (isset($params['country'])) {
             $address->setCountryId($params['country']);
         }
+        $quote->setBillingAddress($address);
+        $quote->save();
         $this->_cartsguru_helper->sendCart($quote);
       }
     }

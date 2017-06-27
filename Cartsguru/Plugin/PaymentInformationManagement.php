@@ -5,7 +5,7 @@ namespace Cartsguru\Cartsguru\Plugin;
 use Magento\Framework\Exception\LocalizedException;
 use Cartsguru\Cartsguru\Helper\Data as DataHelper;
 
-class CartguruPlugin
+class PaymentInformationManagement
 {
     /**
      * @var \Magento\Quote\Model\Quote

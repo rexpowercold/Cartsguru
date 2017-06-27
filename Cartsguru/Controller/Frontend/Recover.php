@@ -24,7 +24,6 @@ class Recover extends \Magento\Framework\App\Action\Action
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Customer\Model\CustomerFactory $customerFactory,
-        \Magento\Framework\UrlInterface $urlBuilder,
         \Cartsguru\Cartsguru\Helper\Data $helper
     ) {
         $this->_resultPageFactory = $resultPageFactory;
@@ -33,7 +32,6 @@ class Recover extends \Magento\Framework\App\Action\Action
         $this->_customerFactory = $customerFactory;
         $this->_cart = $cart;
         $this->_quoteFactory = $quoteFactory;
-        $this->_urlBuilder = $urlBuilder;
         $this->_cartsguru_helper = $helper;
         parent::__construct($context);
     }
