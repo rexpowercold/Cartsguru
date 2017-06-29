@@ -7,15 +7,15 @@
 -->
 <config>
     <type name="Magento\Checkout\Model\GuestShippingInformationManagement">
-        <plugin name="cartsguruShippingInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\ShippingInformationManagement" sortOrder="1" />
+        <plugin name="cartsguruGuestShippingInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\GuestShippingInformationManagement" sortOrder="1" />
     </type>
-    <!-- <type name="Magento\Checkout\Model\ShippingInformationManagement">
+    <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="cartsguruShippingInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\ShippingInformationManagement" sortOrder="1" />
     </type>
     <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
-        <plugin name="cartsguruPaymentInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\PaymentInformationManagement" sortOrder="1" />
+        <plugin name="cartsguruGuestPaymentInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\GuestPaymentInformationManagement" sortOrder="1" />
     </type>
     <type name="Magento\Checkout\Model\PaymentInformationManagement">
         <plugin name="cartsguruPaymentInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\PaymentInformationManagement" sortOrder="1" />
-    </type> -->
+    </type>
 </config>
