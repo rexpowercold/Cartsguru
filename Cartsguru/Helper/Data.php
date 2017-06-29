@@ -174,7 +174,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return;
       }
       $cartData = $this->getCartData($quote);
-      print_r($cartData); die;
+      // print_r($cartData); die;
       $this->doPostRequest('carts', $cartData);
     }
      /**
@@ -268,9 +268,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
               $items[] = array(
                   'id'        => $product->getId(),                          // SKU or product id
                   'label'     => $product->getName(),                        // Designation
-                  'quantity'  => $quantity,                               // Count
+                  'quantity'  => $quantity,                                  // Count
                   'totalET'   => (float)$item->getPrice()*$quantity,         // Subtotal of item, taxe excluded
-                  'totalATI'  => (float)$item->getPriceInclTax()*$quantity, // Subtotal of item, taxe included
+                  'totalATI'  => (float)$item->getPriceInclTax()*$quantity,  // Subtotal of item, taxe included
                   'url'       => $productData['url'],
                   'imageUrl'  => $productData['imageUrl'],
                   'universe'  => $productData['universe'],

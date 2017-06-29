@@ -10,12 +10,6 @@
         <plugin name="cartsguruShippingInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\ShippingInformationManagement" sortOrder="1" />
     </type>
     <!-- <type name="Magento\Checkout\Model\ShippingInformationManagement">
-        <plugin name="cartsguruShippingInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\ShippingInformationManagement" sortOrder="1" />
-    </type>
-    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
-        <plugin name="cartsguruPaymentInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\PaymentInformationManagement" sortOrder="1" />
-    </type>
-    <type name="Magento\Checkout\Model\PaymentInformationManagement">
-        <plugin name="cartsguruPaymentInformationManagementPlugin" type="Cartsguru\Cartsguru\Plugin\PaymentInformationManagement" sortOrder="1" />
+        <plugin name="cartsguruInterceptorPlugin" type="Cartsguru\Cartsguru\Plugin\CartguruPlugin" sortOrder="1" />
     </type> -->
 </config>
