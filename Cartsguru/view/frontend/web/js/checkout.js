@@ -2,7 +2,7 @@
  * Carts Guru
  *
  * @author    LINKT IT
- * @copyright Copyright (c) LINKT IT 2016
+ * @copyright Copyright (c) LINKT IT 2017
  * @license   Commercial license
  */
  require([

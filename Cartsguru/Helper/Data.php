@@ -15,6 +15,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
   *
   * @var string
   */
+  private $historySize = 250;
+
+
   const XML_PATH_ENABLED = 'cartsguru/basic/enabled';
   const CONFIG_BASE_PATH = 'cartsguru/cartsguru_group/';
   const CARTSGURU_VERSION = '1.0';
@@ -23,44 +26,52 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
   protected $_scopeConfig;
   protected $_resourceConfig;
-  protected $_urlBuilder;
-
-  public $_storeManager;
+  protected $_storeManager;
+  protected $_request;
+  protected $_customerSession;
+  protected $_customerFactory;
+  protected $_groupRepository;
+  protected $_orderCollectionFactory;
+  protected $_categoryRepository;
 
 
   /*
-  * @var \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+  * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+  * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+  * @param \Magento\Framework\App\Request\Http $request
+  * @param \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig
+  * @param \Magento\Customer\Model\Session $customerSession
+  * @param \Magento\Customer\Model\CustomerFactory $customerFactory
+  * @param \Magento\Customer\Api\GroupRepositoryInterface $groupRepository
+  * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory
+  * @param \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository
   */
 
   public function __construct(
     \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-    \Magento\Framework\UrlInterface $urlBuilder,
     \Magento\Store\Model\StoreManagerInterface $storeManager,
     \Magento\Framework\App\Request\Http $request,
     \Magento\Framework\App\Config\ConfigResource\ConfigInterface $resourceConfig,
     \Magento\Customer\Model\Session $customerSession,
     \Magento\Customer\Model\CustomerFactory $customerFactory,
-    \Magento\Checkout\Model\Session $checkoutSession,
-    \Magento\Catalog\Model\Product $productModel,
     \Magento\Customer\Api\GroupRepositoryInterface $groupRepository,
     \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
     \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository,
-    \Magento\Catalog\Helper\Image $imageHelper
+    \Magento\Sales\Model\Order $orderCollection,
+    \Magento\Quote\Model\QuoteFactory $quoteFactory
     )
     {
       $this->_scopeConfig = $scopeConfig;
       $this->_resourceConfig = $resourceConfig;
-      $this->_urlBuilder = $urlBuilder;
       $this->_storeManager = $storeManager;
       $this->_request = $request;
       $this->_customerSession = $customerSession;
       $this->_customerFactory = $customerFactory;
       $this->_groupRepository = $groupRepository;
-      $this->_checkoutSession = $checkoutSession;
-      $this->_productModel = $productModel;
       $this->_orderCollectionFactory = $orderCollectionFactory;
       $this->_categoryRepository = $categoryRepository;
-      $this->_imageHelper = $imageHelper;
+      $this->_orderCollection = $orderCollection;
+      $this->_quoteFactory = $quoteFactory;
 
     }
 
@@ -92,7 +103,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         // Order the codes by quality
         array_multisort($quality, SORT_NUMERIC, SORT_DESC, $langs);
         // get list of stores and use the store code for the key
-        // $stores = $this->_storeManager->getStore(false, true);??
+        // _storeManager
         // iterate through languages found in the accept-language header
         foreach ($langs as $lang) {
           $lang = substr($lang, 0, 2);
@@ -146,7 +157,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
       $fields = array(
         'plugin'                => 'magento2',
         'pluginVersion'         => self::CARTSGURU_VERSION,
-        //'adminUrl'              => Mage::app()->getStore($store)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK) . 'cartsguru/admin?cartsguru_admin_action='
+        'adminUrl'              => $this->_storeManager->getStore()->getBaseUrl() . 'cartsguru/frontend/admin?admin_action='
       );
 
       $response = $this->doPostRequest($requestUrl, $fields);
@@ -159,7 +170,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     // Register user
     public function registerNewCustomer($fields) {
-      $fields['adminUrl'] = $this->_urlBuilder->getUrl('cartsguru/admin');
+      $fields['adminUrl'] = $this->_storeManager->getStore()->getBaseUrl() . 'cartsguru/frontend/admin?admin_action=';
       $response = $this->doPostRequest('customers', $fields);
       if (!$response || $response->getStatusCode() != 200) {
         return false;
@@ -174,21 +185,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return;
       }
       $cartData = $this->getCartData($quote);
-      // print_r($cartData); die;
       $this->doPostRequest('carts', $cartData);
     }
-     /**
-     * If value is empty return ''
-     * @param $value
-     * @return string
-     */
+    /**
+    * If value is empty return ''
+    * @param $value
+    * @return string
+    */
     protected function notEmpty($value)
     {
-        return ($value)? $value : '';
+      return ($value)? $value : '';
     }
 
     // Process and normalize cart data
-    public function getCartData($quote) {
+    public function getCartData($quote, $store = null) {
       //Customer data
       $address = $quote->getBillingAddress();
       $lastname = $address->getLastname();
@@ -200,15 +210,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
 
       $custom = array(
-          'language' => $this->getBrowserLanguage(),
-          'customerGroup' => $this->getCustomerGroupName($email),
-          'isNewCustomer' => $this->isNewCustomer($email)
+        'language' => $this->getBrowserLanguage(),
+        'customerGroup' => $this->getCustomerGroupName($email),
+        'isNewCustomer' => $this->isNewCustomer($email)
       );
 
       //Recover link
-      $recoverUrl = $this->_storeManager->getStore()->getBaseUrl() . 'cartsguru/frontend/recover?cart_id=' . $quote->getId() ;
-      // $recoverUrl = ($quote->getData('cartsguru_token')) ? $this->getBaseUrl() . 'cartsguru/recovercart?cart_id=' . $quote->getId() . '&cart_token=' . $quote->getData('cartsguru_token') : '';
-
+      $recoverUrl = $this->_storeManager->getStore()->getBaseUrl() . 'cartsguru/recover?cart_id=' . $quote->getId() ;
 
       //Items details
       $items = $this->getItemsData($quote);
@@ -219,7 +227,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
       }
 
       return array(
-        'siteId'        => $this->getStoreConfig('siteid'),         // SiteId is part of plugin configuration
+        'siteId'        => $this->getStoreConfig('siteid'),                 // SiteId is part of plugin configuration
         'id'            => $quote->getId(),                                 // Order reference, the same display to the buyer
         'creationDate'  => $this->formatDate($quote->getCreatedAt()),       // Date of the order as string in json format
         'totalET'       => (float)$quote->getSubtotal(),                    // Amount excluded taxes and excluded shipping
@@ -245,70 +253,70 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * This method build items from order or quote
-     * @param $obj order or quote
-     * @return array
-     */
+    * This method build items from order or quote
+    * @param $obj order or quote
+    * @return array
+    */
     public function getItemsData($quote)
     {
-        $items = array();
-        if ($quote->getItems()) {
-          foreach ($quote->getItems() as $item) {
-              $product = $item->getProduct();
-              $categoryNames = $this->getCatNames($product);
-              $productData = array(
-                  'url'       => $product->getProductUrl(),           // URL of product sheet
-                  'imageUrl'  => $this->getProudctImageUrl($product), // URL of product image
-                  'universe'  => $this->notEmpty($categoryNames[1]),  // Main category
-                  'category'  => $this->notEmpty(end($categoryNames)) // Child category
-              );
+      $items = array();
+      if ($quote->getItems()) {
+        foreach ($quote->getItems() as $item) {
+          $product = $item->getProduct();
+          $categoryNames = $this->getCatNames($product);
+          $productData = array(
+            'url'       => $product->getProductUrl(),           // URL of product sheet
+            'imageUrl'  => $this->getProudctImageUrl($product), // URL of product image
+            'universe'  => $this->notEmpty($categoryNames[1]),  // Main category
+            'category'  => $this->notEmpty(end($categoryNames)) // Child category
+          );
 
-              $quantity = (int)$item->getQtyOrdered() > 0 ?  (int)$item->getQtyOrdered() : (int)$item->getQty();
+          $quantity = (int)$item->getQtyOrdered() > 0 ?  (int)$item->getQtyOrdered() : (int)$item->getQty();
 
-              $items[] = array(
-                  'id'        => $product->getId(),                          // SKU or product id
-                  'label'     => $product->getName(),                        // Designation
-                  'quantity'  => $quantity,                                  // Count
-                  'totalET'   => (float)$item->getPrice()*$quantity,         // Subtotal of item, taxe excluded
-                  'totalATI'  => (float)$item->getPriceInclTax()*$quantity,  // Subtotal of item, taxe included
-                  'url'       => $productData['url'],
-                  'imageUrl'  => $productData['imageUrl'],
-                  'universe'  => $productData['universe'],
-                  'category'  => $productData['category']
-              );
-          }
+          $items[] = array(
+            'id'        => $product->getId(),                          // SKU or product id
+            'label'     => $product->getName(),                        // Designation
+            'quantity'  => $quantity,                                  // Count
+            'totalET'   => (float)$item->getPrice()*$quantity,         // Subtotal of item, taxe excluded
+            'totalATI'  => (float)$item->getPriceInclTax()*$quantity,  // Subtotal of item, taxe included
+            'url'       => $productData['url'],
+            'imageUrl'  => $productData['imageUrl'],
+            'universe'  => $productData['universe'],
+            'category'  => $productData['category']
+          );
         }
-        return $items;
+      }
+      return $items;
     }
 
     /**
-     * Get category names
-     * @param $item
-     * @return array
-     */
+    * Get category names
+    * @param $item
+    * @return array
+    */
     public function getCatNames($product)
     {
-        $categoryNames = array();
-        $categoryIds = $product->getCategoryIds();
+      $categoryNames = array();
+      $categoryIds = $product->getCategoryIds();
 
-        if ($categoryIds) {
-          foreach ($categoryIds as $categoryId) {
-              $category = $this->_categoryRepository->get($categoryId);
-              $ids = explode('/', $category->getPath());
-              foreach ($ids as $id) {
-                  $category = $this->_categoryRepository->get($id);
-                  $categoryNames[] = $category->getName();
-              }
-          }
-
-          if (empty($categoryNames)) {
-              $categoryNames = array(
-                  0 => $this->notEmpty(null),
-                  1 => $this->notEmpty(null)
-              );
+      if ($categoryIds) {
+        foreach ($categoryIds as $categoryId) {
+          $category = $this->_categoryRepository->get($categoryId);
+          $ids = explode('/', $category->getPath());
+          foreach ($ids as $id) {
+            $category = $this->_categoryRepository->get($id);
+            $categoryNames[] = $category->getName();
           }
         }
-        return $categoryNames;
+
+        if (empty($categoryNames)) {
+          $categoryNames = array(
+            0 => $this->notEmpty(null),
+            1 => $this->notEmpty(null)
+          );
+        }
+      }
+      return $categoryNames;
     }
 
     /**
@@ -316,95 +324,92 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     * @param $order
     */
     public function sendOrder($order)
-        {
-            $store = $this->getStore($order->getStoreId());
+    {
+      //Check is well configured
+      if (!$this->isStoreConfigured()) {
+        return;
+      }
 
-            //Check is well configured
-            if (!$this->isStoreConfigured()) {
-                return;
-            }
+      //Get data, stop if none
+      $orderData = $this->getOrderData($order);
+      if (empty($orderData)) {
+        return;
+      }
+      //Push data to api
+      $this->doPostRequest('orders', $orderData);
+    }
 
-            //Get data, stop if none
-            $orderData = $this->getOrderData($order);
-            if (empty($orderData)) {
-                return;
-            }
-
-            //Push data to api
-            $this->doPostRequest('/orders', $orderData);
-        }
-
-             /**
-             * Map int of geder to string
-             * @param $gender
-             * @return string
-             */
-            public function genderMapping($gender)
-            {
-                switch ((int)$gender) {
-                    case 1:
-                        return 'mister';
-                    case 2:
-                        return 'madam';
-                    default:
-                        return '';
-                }
-            }
+    /**
+    * Map int of geder to string
+    * @param $gender
+    * @return string
+    */
+    public function genderMapping($gender)
+    {
+      switch ((int)$gender) {
+        case 1:
+        return 'mister';
+        case 2:
+        return 'madam';
+        default:
+        return '';
+      }
+    }
 
 
-         /**
-         * This method return order data in cartsguru format
-         * @param $order
-         * @return array
-         */
-        public function getOrderData($order)
-        {
-            //Order must have a status
-            if (!$order->getStatus()) {
-                return null;
-            }
+    /**
+    * This method return order data in cartsguru format
+    * @param $order
+    * @return array
+    */
+      public function getOrderData($order, $store = null)
+    {
+      //Order must have a status
+        if (!$order->getStatusLabel()) {
+        return null;
+      }
 
-            //Customer data
-            $gender = $this->genderMapping($order->getCustomerGender());
-            $email = $order->getCustomerEmail();
+      //Customer data
+      $gender = $this->genderMapping($order->getCustomerGender());
+      $email = $order->getCustomerEmail();
 
-            //Address
-            $address = $order->getBillingAddress();
+      //Address
+      $address = $order->getBillingAddress();
 
-            //Items details
-            $items = $this->getItemsData($quote);
+      //Items details
+      $items = $this->getItemsData($order);
 
-            // Custom fields
-            $custom = array(
-                'language' => $this->getBrowserLanguage(),
-                'customerGroup' => $this->getCustomerGroupName($email),
-                'isNewCustomer' => $this->isNewCustomer($email)
-            );
-            // We do this to include the discounts in the totalET
-            $totalET = number_format((float)($order->getGrandTotal() - $order->getShippingAmount() - $order->getTaxAmount()), 2);
+      // Custom fields
+      $custom = array(
+        'language' => $this->getBrowserLanguage(),
+        'customerGroup' => $this->getCustomerGroupName($email),
+        'isNewCustomer' => $this->isNewCustomer($email)
+      );
+      // We do this to include the discounts in the totalET
+      $totalET = number_format((float)($order->getGrandTotal() - $order->getShippingAmount() - $order->getTaxAmount()), 2);
 
-            return array(
-                'siteId'        => $this->getStoreConfig('siteid'),                         // SiteId is part of plugin configuration
-                'id'            => $order->getIncrementId(),                                        // Order reference, the same display to the buyer
-                'creationDate'  => $this->formatDate($order->getCreatedAt()),                       // Date of the order as string in json format
-                'cartId'        => $order->getQuoteId(),                                            // Cart identifier, source of the order
-                'totalET'       => $totalET,                                                        // Amount excluded taxes and excluded shipping
-                'totalATI'      => (float)$order->getGrandTotal(),                                  // Paid amount
-                'currency'      => $order->getOrderCurrencyCode(),                                  // Currency as USD, EUR
-                'paymentMethod' => $order->getPayment()->getMethodInstance()->getTitle(),           // Payment method label
-                'state'         => $order->getStatus(),                                             // raw order status
-                'accountId'     => $email,                                                          // Account id of the buyer
-                'ip'            => $order->getRemoteIp(),                                           // User IP
-                'civility'      => $this->notEmpty($gender),                                        // Use string in this list : 'mister','madam','miss'
-                'lastname'      => $this->notEmpty($address->getLastname()),                        // Lastname of the buyer
-                'firstname'     => $this->notEmpty($address->getFirstname()),                       // Firstname of the buyer
-                'email'         => $this->notEmpty($email),                                         // Email of the buye
-                'phoneNumber'   => $this->notEmpty($address->getTelephone()),                       // Landline phone number of buyer (internationnal format)
-                'countryCode'   => $this->notEmpty($address->getCountryId()),                       // Country code of buyer
-                'items'         => $items,                                                          // Details
-                'custom'        => $custom                                                          // Custom fields array
-            );
-        }
+      return array(
+        'siteId'        => $this->getStoreConfig('siteid'),                                 // SiteId is part of plugin configuration
+        'id'            => $order->getIncrementId(),                                        // Order reference, the same display to the buyer
+        'creationDate'  => $this->formatDate($order->getCreatedAt()),                       // Date of the order as string in json format
+        'cartId'        => $order->getQuoteId(),                                            // Cart identifier, source of the order
+        'totalET'       => $totalET,                                                        // Amount excluded taxes and excluded shipping
+        'totalATI'      => (float)$order->getGrandTotal(),                                  // Paid amount
+        'currency'      => $order->getOrderCurrencyCode(),                                  // Currency as USD, EUR
+        'paymentMethod' => $order->getPayment()->getMethodInstance()->getTitle(),           // Payment method label
+        'state'         => $order->getStatus(),                                             // raw order status
+        'accountId'     => $email,                                                          // Account id of the buyer
+        'ip'            => $order->getRemoteIp(),                                           // User IP
+        'civility'      => $this->notEmpty($gender),                                        // Use string in this list : 'mister','madam','miss'
+        'lastname'      => $this->notEmpty($address->getLastname()),                        // Lastname of the buyer
+        'firstname'     => $this->notEmpty($address->getFirstname()),                       // Firstname of the buyer
+        'email'         => $this->notEmpty($email),                                         // Email of the buye
+        'phoneNumber'   => $this->notEmpty($address->getTelephone()),                       // Landline phone number of buyer (internationnal format)
+        'countryCode'   => $this->notEmpty($address->getCountryId()),                       // Country code of buyer
+        'items'         => $items,                                                          // Details
+        'custom'        => $custom                                                          // Custom fields array
+      );
+    }
 
     /**
     * This method format date in json format
@@ -430,6 +435,86 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
       }
 
       return $totalATI;
+    }
+
+    /* Send quote and order history
+     *
+     * @param int $quoteId
+     * @param string|int $store
+     * @return Sales_Model
+     */
+    public function sendHistory()
+    {
+        $store = $this->_storeManager->getWebsite()->getDefaultGroup()->getDefaultStore();
+
+        $lastOrder = $this->sendLastOrders($store);
+        if ($lastOrder) {
+            $this->sendLastQuotes($store, $lastOrder->getCreatedAt());
+        }
+    }
+
+
+
+    public function sendLastQuotes($store, $since)
+    {
+      $quotes = array();
+      $last = null;
+      $items = $this->_quoteFactory->create()
+                  ->getCollection()
+                  ->setOrder('created_at', 'asc')
+                  ->addFieldToFilter('store_id', $store->getStoreId())
+                  ->addFieldToFilter('created_at', array('gt' =>  $since));
+
+      foreach ($items as $item) {
+        $quote = $this->_quoteFactory->create()->loadByIdWithoutStore($item->getId());
+        $last = $quote;
+
+        if ($quote) {
+          //Get quote data
+          $quoteData = $this->getCartData($quote, $store);
+
+          //Append only if we get it
+          if ($quoteData) {
+            $quotes[] = $quoteData;
+          }
+        }
+      }
+      //Push quotes to api
+        if (!empty($quotes)) {
+            $this->doPostRequest('/import/carts', $quotes, $store);
+        }
+
+        return $last;
+    }
+
+    public function sendLastOrders($store)
+    {
+        $orders = array();
+        $last = null;
+        $items = $this->_orderCollection
+                   ->getItemsCollection()
+                   ->setOrder('created_at', 'desc')
+                   ->setPageSize($this->historySize)
+                   ->addFieldToFilter('store_id', $store->getStoreId());
+
+        foreach ($items as $item) {
+            $order = $this->_orderCollectionFactory->create()->load($item->getId());
+            $last = $order;
+
+            //Get order data
+            $orderData = $this->getOrderData($order, $store);
+            //Append only if we get it
+            if (!empty($orderData)) {
+                $orders[] = $orderData;
+            }
+        }
+ print_r($orders); die;
+        //Push orders to api
+        if (!empty($orders)) {
+            $this->doPostRequest('/import/orders', $orders, $store);
+        }
+
+        return $last;
     }
 
     //Send data on api path

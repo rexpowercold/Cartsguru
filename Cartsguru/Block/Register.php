@@ -1,4 +1,8 @@
 <?php
+/**
+* Copyright © 2017 Carts Guru Ltd. All rights reserved.
+* See COPYING.txt for license details.
+ */
 namespace Cartsguru\Cartsguru\Block;
 use Magento\Framework\View\Element\Template;
 
@@ -8,10 +12,12 @@ class Register extends Template
   * @var DataHelper
   */
   protected $_helper;
+  protected $_directoryBlock;
 
   /**
   * @param Template\Context $context
   * @param DataHelper $dataHelper
+  * @param DataHelper $directoryBlock
   * @param array $data
   */
   public function __construct(

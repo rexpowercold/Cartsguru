@@ -1,5 +1,8 @@
 <?php
-
+/**
+* Copyright © 2017 Carts Guru Ltd. All rights reserved.
+* See COPYING.txt for license details.
+ */
 namespace Cartsguru\Cartsguru\Controller\Adminhtml\Admin;
 
 class Register extends \Cartsguru\Cartsguru\Controller\Adminhtml\Cartsguru
@@ -35,7 +38,6 @@ class Register extends \Cartsguru\Cartsguru\Controller\Adminhtml\Cartsguru
      */
     public function execute()
     {
-        /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
 
         $resultPage = $this->resultPageFactory->create();
         $this->initPage($resultPage)->getConfig()->getTitle()->prepend(__('Carts Guru'));

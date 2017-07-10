@@ -1,14 +1,13 @@
 <?php
-
+/**
+* Copyright © 2017 Carts Guru Ltd. All rights reserved.
+* See COPYING.txt for license details.
+ */
 namespace Cartsguru\Cartsguru\Controller\Frontend;
 
 class Index extends \Magento\Framework\App\Action\Action
 {
-    /**
-     * @var \Magento\Framework\View\Result\PageFactory
-     */
-    protected $resultPageFactory;
-    protected $_cartsguru_helper;
+    protected $helper;
 
     /**
      * @param \Magento\Backend\App\Action\Context $context

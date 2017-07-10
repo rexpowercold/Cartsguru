@@ -7,7 +7,7 @@ namespace Cartsguru\Cartsguru\Plugin;
 
 use Magento\Framework\Exception\LocalizedException;
 
-class ShippingInformationManagement
+class GuestPaymentInformationManagement
 {
     /**
      * @var \Magento\Quote\Model\Quote
@@ -33,10 +33,11 @@ class ShippingInformationManagement
         $this->_cart = $cart;
     }
 
-    public function afterSaveAddressInformation(
-        \Magento\Checkout\Model\ShippingInformationManagement\Interceptor $interceptor,
-        $cartId) {
+    public function afterSavePaymentInformation (
+      \Magento\Checkout\Model\GuestPaymentInformationManagement\Interceptor $interceptor,
+      $status
+    ) {
       $this->_cartsguruHelper->sendCart($this->_checkoutSession->getQuote());
-      return $cartId;
+      return $status;
     }
 }

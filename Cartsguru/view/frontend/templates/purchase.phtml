@@ -1,0 +1,29 @@
+<?php
+/**
+* Copyright © 2017 Carts Guru Ltd. All rights reserved.
+* See COPYING.txt for license details.
+ */
+$facebookEnabled = $block->isFacebookEnabled();
+$pixel = $block->getPixel();
+$catalogId = $block->getCatalogId();
+$lastOrder = $block->getLastOrder();
+if ($facebookEnabled && $pixel && $catalogId && $lastOrder):
+    $items = $lastOrder->getAllVisibleItems();
+    $productIds = array();
+
+    foreach ($items as $item) {
+        array_push($productIds, $item->getId());
+    }
+    $total = number_format((double)$lastOrder->getGrandTotal(), 2, '.', '');
+?>
+    <script>
+        fbq('track', 'Purchase', {
+            content_ids: <?php echo json_encode($productIds); ?>,
+            content_type: 'product',
+            value: <?php echo $total; ?>,
+            currency: '<?php echo $block->getCurrency(); ?>',
+            product_catalog_id: '<?php echo $catalogId; ?>'
+        });
+    </script>
+
+<?php endif; ?>

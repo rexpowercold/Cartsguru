@@ -1,4 +1,8 @@
 <?php
+/**
+* Copyright © 2017 Carts Guru Ltd. All rights reserved.
+* See COPYING.txt for license details.
+ */
  namespace Cartsguru\Cartsguru\Block;
  use Magento\Framework\View\Element\Template;
 
